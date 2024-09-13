@@ -1,0 +1,383 @@
+category_configuration:
+  categories:
+    - category_id: "security-default"
+      topics:
+        - identifier: "Linux system is up to date"
+          files: [ ]
+          commands: [
+            "sudo apt update && apt list --upgradable"
+          ]
+          services: [ ]
+        - identifier: "Ensure only authorized repositories are used"
+          files: [ ]
+          commands: [
+            "grep -r 'deb ' /etc/apt/sources.list /etc/apt/sources.list.d/"
+          ]
+          services: [ ]
+        - identifier: "Check if any users have no password set"
+          files: [ ]
+          commands: [
+            "sudo awk -F: '($2 == \"\") {print}' /etc/shadow"
+          ]
+          services: [ ]
+        - identifier: "Check if no other user than root has UID set to 0"
+          files: [ ]
+          commands: [
+            "awk -F: '($3 == \"0\") {print}' /etc/passwd"
+          ]
+          services: [ ]
+        - identifier: "Verify user accounts and their permissions"
+          files: [ "/etc/passwd", "/etc/shadow" ]
+          commands: [ ]
+          services: [ ]
+        - identifier: "Check permissions of critical system files"
+          files: [ ]
+          commands: [
+            "ls -l /etc/passwd",
+            "ls -l /etc/shadow",
+            "ls -l /etc/ssh/sshd_config"
+          ]
+          services: []
+        - identifier: "Check if root account is locked"
+          files: [ ]
+          commands: [
+            "sudo grep '^root:' /etc/shadow"
+          ]
+          services: [ ]
+        - identifier: "Check if any services should be disabled"
+          files: [ ]
+          commands: [
+            "systemctl list-units --type=service --all"
+          ]
+          services: [ ]
+        - identifier: "Separate disk patitions for /usr, /home, /var, /var/tmp and /tmp"
+          files: [ ]
+          commands: [
+            "lsblk -f"
+          ]
+          services: [ ]
+        - identifier: "Check if /var is mounted with noexec, nosuid, and nodev options"
+          files: [ ]
+          commands: [
+            "mount | grep '/var'",
+            "grep '/var' /etc/fstab"
+          ]
+          services: [ ]
+
+        - identifier: "No world writable files exists"
+          files: [ ]
+          commands: [
+            "sudo find / -xdev -type d \\( -perm -0002 -a ! -perm -1000 \\) -print"
+          ]
+          services: [ ]
+        - identifier: "No no-owner files exists"
+          files: [ ]
+          commands: [
+            "find /dir -xdev \\( -nouser -o -nogroup \\) -print"
+          ]
+          services: [ ]
+        - identifier: "Check if the system time is synchronized (NTP/chrony)"
+          files: []
+          commands: [
+            "timedatectl status | grep 'System clock synchronized'"
+          ]
+          services: []
+        - identifier: "Check for unauthorized SUID/SGID binaries"
+          files: [ ]
+          commands: [
+            "sudo find / -perm /6000 -type f -exec ls -ld {} \\;"
+          ]
+          services: []
+        - identifier: "Check for duplicate UID and GID"
+          files: [ ]
+          commands: [
+            "awk -F: '{print $3}' /etc/passwd | sort | uniq -d",
+            "awk -F: '{print $3}' /etc/group | sort | uniq -d"
+          ]
+          services: [ ]
+        - identifier: "Check for core dumps"
+          files: [ ]
+          commands: [
+            "grep -E '^\\\\*.*core' /etc/security/limits.conf"
+          ]
+          services: [ ]
+        - identifier: "Check open ports for vulnerabilities"
+          files: [ ]
+          commands: [
+            "netstat -tulpn"
+          ]
+          services: [ ]
+        - identifier: "ssh key permissions"
+          files: [ ]
+          commands: [
+            "ls -l ~/.ssh/*.pub /etc/ssh/*.pub"
+          ]
+          services: [ ]
+        - identifier: "ensure SSH loglevel is appropriate"
+          files: [ ]
+          commands: [
+            "grep 'LogLevel' /etc/ssh/sshd_config"
+          ]
+          services: [ ]
+        - identifier: "disable SSH X11 forwarding"
+          files: [ ]
+          commands: [
+            "grep 'X11Forwarding' /etc/ssh/sshd_config"
+          ]
+          services: [ ]
+        - identifier: "set SSH max auth tries"
+          files: [ ]
+          commands: [
+            "grep 'MaxAuthTries' /etc/ssh/sshd_config"
+          ]
+          services: [ ]
+        - identifier: "enable SSH IgnoreRhosts"
+          files: [ ]
+          commands: [
+            "grep 'IgnoreRhosts' /etc/ssh/sshd_config"
+          ]
+          services: [ ]
+        - identifier: "disable SSH HostbasedAuthentication"
+          files: [ ]
+          commands: [
+            "grep 'HostbasedAuthentication' /etc/ssh/sshd_config"
+          ]
+          services: [ ]
+        - identifier: "disable SSH root login"
+          files: [ ]
+          commands: [
+            "grep 'PermitRootLogin' /etc/ssh/sshd_config"
+          ]
+          services: [ ]
+        - identifier: "disable SSH PermitEmptyPasswords"
+          files: [ ]
+          commands: [
+            "grep 'PermitEmptyPasswords' /etc/ssh/sshd_config"
+          ]
+          services: [ ]
+        - identifier: "disable SSH PermitUserEnvironment"
+          files: [ ]
+          commands: [
+            "grep 'PermitUserEnvironment' /etc/ssh/sshd_config"
+          ]
+          services: [ ]
+        - identifier: "ensure strong SSH ciphers"
+          files: [ ]
+          commands: [
+            "grep 'Ciphers' /etc/ssh/sshd_config"
+          ]
+          services: [ ]
+        - identifier: "ensure strong SSH MAC algorithms"
+          files: [ ]
+          commands: [
+            "grep 'MACs' /etc/ssh/sshd_config"
+          ]
+          services: [ ]
+        - identifier: "ensure strong SSH key exchange algorithms"
+          files: [ ]
+          commands: [
+            "grep 'KexAlgorithms' /etc/ssh/sshd_config"
+          ]
+          services: [ ]
+        - identifier: "configure SSH idle timeout"
+          files: [ ]
+          commands: [
+            "grep 'ClientAliveInterval' /etc/ssh/sshd_config"
+          ]
+          services: [ ]
+        - identifier: "configure SSH LoginGraceTime"
+          files: [ ]
+          commands: [
+            "grep 'LoginGraceTime' /etc/ssh/sshd_config"
+          ]
+          services: [ ]
+        - identifier: "limit SSH access"
+          files: [ ]
+          commands: [
+            "grep 'AllowUsers' /etc/ssh/sshd_config"
+          ]
+          services: [ ]
+        - identifier: "configure SSH warning banner is not default"
+          files: [ ]
+          commands: [
+            "grep 'Banner' /etc/ssh/sshd_config"
+          ]
+          services: [ ]
+        - identifier: "enable SSH PAM"
+          files: [ ]
+          commands: [
+            "grep 'UsePAM' /etc/ssh/sshd_config"
+          ]
+          services: [ ]
+        - identifier: "Check is ssh service is running and configured correctly"
+          files: [ ]
+          commands: []
+          services: ["ssh"]
+        - identifier: "Check if cron is running and configured correctly"
+          files: [ ]
+          commands: []
+          services: ["cron"]
+        - identifier: "Permissions for cron files"
+          files: [ ]
+          commands: ["ls -l /etc/cron"]
+          services: []
+        - identifier: "Has cron allow/ deny list"
+          files: ["/etc/cron.allow", "/etc/cron.deny"]
+          commands: []
+          services: []
+        - identifier: "Check if ip forwarding and packet redirecting is disabled"
+          files: []
+          commands: [
+            "grep 'net.ipv4.ip_forward' /etc/sysctl.conf",
+            "grep 'net.ipv4.conf.all.send_redirects' /etc/sysctl.conf"
+          ]
+          services: []
+        - identifier: "Check if broadcast requests are blocked"
+          files: []
+          commands: [
+            "grep 'net.ipv4.icmp_echo_ignore_broadcasts' /etc/sysctl.conf",
+            "grep 'net.ipv4.icmp_ignore_bogus_error_message' /etc/sysctl.conf"
+          ]
+          services: []
+        - identifier: "Ensure kernel parameters (sysctl) are properly configured"
+          files: [ ]
+          commands: [
+            "grep 'net.ipv4.conf.all.accept_source_route' /etc/sysctl.conf",
+            "grep 'net.ipv4.tcp_syncookies' /etc/sysctl.conf"
+          ]
+          services: [ ]
+        - identifier: "Check if IPv6 is disabled if not in use"
+          files: [ ]
+          commands: [
+            "grep 'net.ipv6.conf.all.disable_ipv6' /etc/sysctl.conf",
+            "grep 'net.ipv6.conf.default.disable_ipv6' /etc/sysctl.conf"
+          ]
+          services: [ ]
+        - identifier: "Ensure DNS server is configured correctly"
+          files: [
+            "/etc/resolv.conf"
+          ]
+          commands: [ ]
+          services: [ ]
+        - identifier: "permissions of banners"
+          files: []
+          commands: [
+            "ls -l /etc/motd",
+            "ls -l /etc/issue",
+            "ls -l /etc/issue.net"
+          ]
+          services: []
+    - category_id: "security-mac"
+      topics:
+        - identifier: "Check if SELinux is configured correctly"
+          files: [
+            "/etc/selinux/config"
+          ]
+          commands: [
+            "sestatus",
+            "getenforce",
+            "ls -Z /etc/selinux",
+            "cat /etc/selinux/config"
+          ]
+          services: [
+            "setroubleshootd"
+          ]
+    - category_id: "security-firewalls"
+      topics:
+        - identifier: "Check if iptables is configured correctly"
+          files: [
+            "/etc/selinux/config"
+          ]
+          commands: [
+            "iptables -S",
+            "iptables -L INPUT -v -n",
+            "iptables -L OUTPUT -v -n",
+            "iptables -L FORWARD -v -n",
+          ]
+          services: [
+            "iptables"
+          ]
+        - identifier: "Check if ufw is configured correctly"
+          files: [
+            "/etc/ufw/ufw.conf",
+          ]
+          commands: [
+            "ufw status verbose",
+            "ufw show raw",
+            "grep 'DEFAULT_INPUT_POLICY=\"DROP\"' /etc/default/ufw",
+            "grep 'DEFAULT_OUTPUT_POLICY=\"ACCEPT\"' /etc/default/ufw",
+            "grep 'DEFAULT_FORWARD_POLICY=\"DROP\"' /etc/default/ufw"
+          ]
+          services: [
+            "ufw"
+          ]
+        - identifier: "Check if firewalld is configured correctly"
+          files: [
+            "/etc/firewalld/firewalld.conf",
+          ]
+          commands: [
+            "firewall-cmd --state",
+            "firewall-cmd --get-active-zones",
+            "firewall-cmd --list-all",
+            "firewall-cmd --list-all --zone=public",
+            "firewall-cmd --get-default-zone",
+            "firewall-cmd --query-masquerade",
+            "firewall-cmd --query-forward-port"
+          ]
+          services: [
+            "firewalld"
+          ]
+    - category_id: "performance"
+      topics:
+        - identifier: "Monitor and analyze CPU usage"
+          files: [ ]
+          commands: [
+            "top -bn1 | grep 'Cpu(s)'"
+          ]
+          services: [ ]
+        - identifier: "Monitor and analyze memory usage"
+          files: [ ]
+          commands: [
+            "vmstat"
+          ]
+          services: [ ]
+        - identifier: "Analyze disk I/O performance"
+          files: [ ]
+          commands: [
+            "df -h"
+          ]
+          services: [ ]
+        - identifier: "Analyze network performance"
+          files: [ ]
+          commands: [
+            "ping -c 4 google.com"
+          ]
+          services: [ ]
+        - identifier: "Monitor system load"
+          files: [ ]
+          commands: [
+            "uptime",
+          ]
+          services: [ ]
+        - identifier: "Analyze and manage system processes"
+          files: [ ]
+          commands: [
+            "ps aux"
+          ]
+          services: [ ]
+    - category_id: "availability-uptime"
+      topics:
+        - identifier: "Monitor uptime"
+          files: [ ]
+          commands: [
+            "uptime"
+          ]
+          services: [ ]
+    - category_id: "availability-service"
+      topics:
+        - identifier: "Check availability of configured service"
+          files: [ ]
+          commands: [ ]
+          services: [
+            "ssh"
+          ]

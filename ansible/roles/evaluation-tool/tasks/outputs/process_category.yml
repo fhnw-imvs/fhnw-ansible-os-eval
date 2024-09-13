@@ -1,0 +1,21 @@
+# process_category.yml
+- name: Initialize topics
+  set_fact:
+    topics: []
+
+- name: Process each topic
+  include_tasks: process_topics.yml
+  loop: "{{ category.topics }}"
+  loop_control:
+    loop_var: topic
+  vars:
+    category_id: "{{ category.category_id }}"
+  no_log: true
+
+- name: Aggregate category data
+  set_fact:
+    category_report: "{{ {'category_id': category.category_id, 'topics': topics} }}"
+
+- name: Update final aggregated report with category data
+  set_fact:
+    final_report: "{{ final_report + [category_report] }}"

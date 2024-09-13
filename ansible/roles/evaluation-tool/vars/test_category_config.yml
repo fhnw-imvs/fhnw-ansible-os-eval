@@ -1,0 +1,63 @@
+# We decided for 30 topics for the test runs
+# It's a mix of different commands, files or services from different contexts inside the security field.
+category_configuration:
+  categories:
+    - category_id: "security-default"
+      topics:
+        - identifier: "Linux system is up to date"
+          files: [ ]
+          commands: [
+            "sudo apt update && apt list --upgradable"
+          ]
+          services: [ ]
+        - identifier: "Check permissions of critical system files"
+          files: [ ]
+          commands: [
+            "ls -l /etc/passwd",
+            "ls -l /etc/shadow",
+            "ls -l /etc/ssh/sshd_config"
+          ]
+          services: [ ]
+        - identifier: "Check if any services should be disabled"
+          files: [ ]
+          commands: [
+            "systemctl list-units --type=service --all"
+          ]
+          services: [ ]
+        - identifier: "disable SSH X11 forwarding"
+          files: [ ]
+          commands: [
+            "grep 'X11Forwarding' /etc/ssh/sshd_config"
+          ]
+          services: [ ]
+        - identifier: "set SSH max auth tries"
+          files: [ ]
+          commands: [
+            "grep 'MaxAuthTries' /etc/ssh/sshd_config"
+          ]
+          services: [ ]
+        - identifier: "enable SSH IgnoreRhosts"
+          files: [ ]
+          commands: [
+            "grep 'IgnoreRhosts' /etc/ssh/sshd_config"
+          ]
+          services: [ ]
+        - identifier: "Check is ssh service is running and configured correctly"
+          files: [ ]
+          commands: []
+          services: ["ssh"]
+        - identifier: "Check if cron is running and configured correctly"
+          files: [ ]
+          commands: []
+          services: ["cron"]
+        - identifier: "Has cron allow/ deny list"
+          files: ["/etc/cron.allow", "/etc/cron.deny"]
+          commands: []
+          services: []
+        - identifier: "Check if broadcast requests are blocked"
+          files: []
+          commands: [
+            "grep 'net.ipv4.icmp_echo_ignore_broadcasts' /etc/sysctl.conf",
+            "grep 'net.ipv4.icmp_ignore_bogus_error_message' /etc/sysctl.conf"
+          ]
+          services: []

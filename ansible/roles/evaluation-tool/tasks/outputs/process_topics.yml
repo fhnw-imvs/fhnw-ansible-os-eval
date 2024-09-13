@@ -1,0 +1,66 @@
+- name: Initialize variables for topic
+  set_fact:
+    topic_file_contents: {}
+    topic_command_outputs: {}
+    topic_service_outputs: {}
+
+- name: Fetch files for each topic from managed nodes
+  slurp:
+    src: "{{ item }}"
+  register: slurped_files
+  with_items: "{{ topic.files }}"
+  when: topic.files | length > 0
+  ignore_errors: true
+
+- name: Run commands on managed nodes
+  shell: "{{ item }}"
+  with_items: "{{ topic.commands }}"
+  register: command_outputs
+  when: topic.commands | length > 0
+  become_user: "{{ remote_user }}"
+  ignore_errors: true
+
+- name: Check service status and config
+  when: topic.services | length > 0
+  no_log: true
+  block:
+    - name: Get service status
+      shell: "sudo systemctl status {{ item }} -n 25"
+      register: service_status
+      ignore_errors: true
+      loop: "{{ topic.services }}"
+
+    - name: Get service config
+      shell: "sudo systemctl cat {{ item }}"
+      register: service_config
+      ignore_errors: true
+      loop: "{{ topic.services }}"
+
+    - name: Aggregate service outputs for the topic
+      set_fact:
+        topic_service_outputs: "{{ topic_service_outputs | default({}) | combine({ item: { 'status': (service_status.results | selectattr('item', 'equalto', item) | map(attribute='stdout') | first if service_status.results | selectattr('item', 'equalto', item) | map(attribute='rc') | first == 0 else service_status.results | selectattr('item', 'equalto', item) | map(attribute='stderr') | first), 'config': (service_config.results | selectattr('item', 'equalto', item) | map(attribute='stdout') | first if service_config.results | selectattr('item', 'equalto', item) | map(attribute='rc') | first == 0 else service_config.results | selectattr('item', 'equalto', item) | map(attribute='stderr') | first) }}) }}"
+      loop: "{{ topic.services }}"
+
+
+- name: Aggregate file contents or errors for the topic
+  set_fact:
+    topic_file_contents: "{{ topic_file_contents | default({}) | combine({(item.item | basename): (item.content | b64decode if item.failed is not defined or not item.failed else item.msg)}) }}"
+  loop: "{{ slurped_files.results }}"
+  when: slurped_files is defined
+  no_log: true
+
+- name: Aggregate command outputs for the topic
+  set_fact:
+    topic_command_outputs: "{{ topic_command_outputs | default({}) | combine({(item.item | regex_replace('([\"\\\\])', '\\\\\\1')): (item.stdout if item.rc == 0 else item.stderr | regex_replace('([\"\\\\])', '\\\\\\1')) }) }}"
+  loop: "{{ command_outputs.results }}"
+  when: command_outputs is defined
+  no_log: true
+
+- name: Store topic results in fact
+  set_fact:
+    topics: "{{ topics | default([]) + [{
+      'identifier': topic.identifier,
+      'command_outputs': topic_command_outputs | to_json,
+      'file_contents': topic_file_contents | to_json,
+      'service_outputs': topic_service_outputs | to_json
+      }] }}"

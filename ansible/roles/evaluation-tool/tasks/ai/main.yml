@@ -1,0 +1,35 @@
+- name: Read JSON report file for each node
+  delegate_to: localhost
+  become: false
+  slurp:
+    src: "{{ outputs_reports_file }}"
+  register: report
+
+- name: Parse JSON file content
+  set_fact:
+    report_data: "{{ report.content | b64decode | from_json }}"
+
+- name: Run AI workflows
+  become: false
+  delegate_to: localhost
+  ai_module:
+    llm_name: "{{ llm_name }}"
+    llm_config: "{{ llm_config }}"
+    categories: "{{ report_data.categories }}"
+    node_name: "{{ node_name }}"
+  register: result
+
+- name: Create reports dir
+  delegate_to: localhost
+  become: false
+  file:
+    path: "{{ final_reports_base_dir }}"
+    state: directory
+
+- name: Save report to file
+  delegate_to: localhost
+  become: false
+  local_action:
+    module: copy
+    content: "{{ result.report }}"
+    dest: "{{ final_reports_base_dir }}/{{ node_name }}-report.md"

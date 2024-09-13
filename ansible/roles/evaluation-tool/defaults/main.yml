@@ -1,0 +1,11 @@
+base_dir: "{{ playbook_dir }}/evaluation-results"
+
+outputs_base_dir: "{{ base_dir }}/outputs"
+final_reports_base_dir: "{{ base_dir }}/reports"
+
+create_dirs: ["{{ outputs_base_dir }}", "{{ final_reports_base_dir }}"]
+
+node_name: "{{ group_names[2] }}-{{ group_names[0] }}-{{ openstack.name }}"
+
+outputs_reports_file: "{{ outputs_base_dir }}/{{ node_name }}-report.json"
+final_reports_file: "{{ final_reports_base_dir }}/{{ node_name }}-report.json"

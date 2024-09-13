@@ -1,0 +1,24 @@
+- name: Initialize final report
+  set_fact:
+    final_report: []
+
+- name: Create outputs dir
+  delegate_to: localhost
+  become: false
+  file:
+    path: "{{ outputs_base_dir }}"
+    state: directory
+
+- name: Process each category
+  include_tasks: process_category.yml
+  loop: "{{ all_categories }}"
+  loop_control:
+    loop_var: category
+  no_log: true
+
+- name: Save command results on control node
+  delegate_to: localhost
+  become: false
+  template:
+    src: template.j2
+    dest: "{{ outputs_base_dir }}/{{ node_name }}-report.json"

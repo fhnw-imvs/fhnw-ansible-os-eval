@@ -1,0 +1,29 @@
+# setup configuration
+- name: Include category config
+  include_vars:
+    file: "{{ role_path }}/vars/category_config.yml"
+    name: category_config
+
+- name: Include llm config
+  include_vars:
+    file: "{{ role_path }}/vars/llm_config.yml"
+    name: llm_config
+
+- name: Define llm name identifier
+  set_fact:
+    llm_name: "gpt"
+  when: llm_name is not defined
+
+ # process categories and store report
+- name: Process categories and store reports
+  include_tasks: outputs/main.yml
+  vars:
+    all_categories: "{{ category_config.category_configuration.categories }}"
+    remote_user: debian
+    ansible_user: debian
+  when: no_processing is not defined
+
+# process reports and run ai
+- name: Process reports and run ai
+  include_tasks: ai/main.yml
+  when: no_ai is not defined

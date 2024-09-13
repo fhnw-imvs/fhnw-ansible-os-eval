@@ -1,0 +1,10 @@
+**/clouds.yml
+**/llm_config.yml
+
+evaluation-results/
+
+__pycache__/
+
+.git/
+.idea/
+.vscode/

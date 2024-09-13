@@ -1,0 +1,19 @@
+# Core dependencies
+openstacksdk
+ansible
+asyncio
+
+langchain
+langchain-openai
+langchain-groq
+langchain-ollama
+langchain-community
+langchain-experimental
+
+langgraph
+langsmith
+
+# Test dependencies
+pytest
+pytest-asyncio
+pytest-mock

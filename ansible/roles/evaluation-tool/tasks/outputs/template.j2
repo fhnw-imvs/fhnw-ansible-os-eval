@@ -1,0 +1,19 @@
+{
+  "categories": [
+  {% for category in final_report %}
+    {
+      "category_id": "{{ category.category_id }}",
+      "topics": [
+      {% for topic in category.topics %}
+        {
+          "identifier": "{{ topic.identifier }}",
+          "command_outputs": {{ topic.command_outputs }},
+          "file_contents": {{ topic.file_contents }},
+          "service_infos": {{ topic.service_outputs }}
+        }{% if not loop.last %},{% endif %}
+      {% endfor %}
+      ]
+    }{% if not loop.last %},{% endif %}
+  {% endfor %}
+  ]
+}
